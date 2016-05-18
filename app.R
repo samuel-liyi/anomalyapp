@@ -1,7 +1,6 @@
 library(ggplot2)
 library(shinydashboard)
 library(DT)
-library(xlsx)
 library(AnomalyDetection)
 library(lubridate)
 ui <- dashboardPage(
