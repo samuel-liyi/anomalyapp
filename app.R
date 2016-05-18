@@ -66,16 +66,29 @@ server <- function(input, output) {
     )
     if (is.null(d))
       return(NULL)
-    if(dim(d)[2]==1&&is.numeric(d[,2])){
+    if(dim(d)[1]<=7){
+      output$illustration<-renderText({"your time series too short,
+                    please check and upload again"}
+      )
+      return(NULL)
+    }
+    if(dim(d)[2]==1&&is.numeric(d[,1])){
       result=AnomalyDetectionVec(d[,1],max_anoms = input$max_anoma
                                  ,period=input$period
-                                 ,direction=input$direction)
+                                 ,direction=input$direction
+                                 ,plot=input$plotting)
     }
     
-    else if(!any(is.na(as.POSIXlt(d[,1])))){
-      d[,1]=as.POSIXct(d[,1],origin='1970-01-01')
+    else if(!any(is.na(parse_date_time(d[,1],
+                                       c('%m/%d/%Y %H:%M:%S','%m/%d/%Y %H%M','%Y-%m-%d %I:%M:%S',
+                                         '%Y-%m-%d %H:%M','%Y%m%d','%Y-%m-%d','%Y%m','Y-%m')
+                                       ,exact = TRUE)))){
+      d[,1]=parse_date_time(d[,1],
+                            c('%m/%d/%Y %H:%M:%S','%m/%d/%Y %H%M','%Y-%m-%d %I:%M:%S',
+                              '%Y-%m-%d %H:%M','%Y%m%d','%Y-%m-%d','%Y%m','Y-%m')
+                            ,exact = TRUE)
       result=AnomalyDetectionTs(d[,c(1,2)],max_anoms = input$max_anoma
-                                ,direction=input$direction,plot=TRUE)
+                                ,direction=input$direction,plot=input$plotting)
     }
     else{
       output$illustration<-renderText({"Wrong format data uploaded,please retry "})
