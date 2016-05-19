@@ -48,6 +48,7 @@ server <- function(input, output) {
     inFile <- input$data_file
     if (is.null(inFile))
       return(NULL)
+    withProgress(message = "processing your data, be patient",value=0.1,{
     d<-tryCatch(read.csv(inFile$datapath),
                 warning=function(e) 
                 {
@@ -64,6 +65,7 @@ server <- function(input, output) {
                   return(NULL)
                 }
     )
+    incProgress(0.2)
     if (is.null(d))
       return(NULL)
     if(dim(d)[1]<=7){
@@ -77,6 +79,7 @@ server <- function(input, output) {
                                  ,period=input$period
                                  ,direction=input$direction
                                  ,plot=input$plotting)
+      incProgress(0.4)
     }
     
     else if(!any(is.na(parse_date_time(d[,1],
@@ -89,6 +92,7 @@ server <- function(input, output) {
                             ,exact = TRUE)
       result=AnomalyDetectionTs(d[,c(1,2)],max_anoms = input$max_anoma
                                 ,direction=input$direction,plot=input$plotting)
+      incProgress(0.4)
     }
     else{
       output$illustration<-renderText({"Wrong format data uploaded,please retry "})
@@ -102,10 +106,12 @@ server <- function(input, output) {
     output$mytable<-renderDataTable({
       rs
     })
+    incProgress(0.2)
     if(!is.null(result$plot)){
       output$plot<-renderPlot({result$plot})
     }
-                })
+    })
+  })
   }
 
 shinyApp(ui, server)
