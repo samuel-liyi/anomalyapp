@@ -41,10 +41,10 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
-  
+  value=reactiveValues(anoms=NULL,plot=NULL)
   observe({
-    output$plot=renderPlot({})
-    output$mytable=renderTable({})
+    value$anoms=NULL
+    value$plot=NULL
     inFile <- input$data_file
     if (is.null(inFile))
       return(NULL)
@@ -100,18 +100,32 @@ server <- function(input, output) {
       
     }
     output$illustration<-renderText({"Anomalies Found!"})
-    
     rs=result$anom
     rs[,1]=as.character(rs[,1])
-    output$mytable<-renderDataTable({
-      rs
-    })
+    value$anoms=rs
+    
     incProgress(0.2)
     if(!is.null(result$plot)){
-      output$plot<-renderPlot({result$plot})
+      value$plot=result$plot
     }
     })
   })
+  output$mytable<-renderDataTable({
+    if(is.null(value$anoms)){
+      return ()
+    }
+    else{
+      value$anoms
+    }
+  })
+  output$plot<-renderPlot({
+    if(is.null(value$plot)){
+      return ()
+    }
+    else{
+      value$plot
+    }
+    })
   }
 
 shinyApp(ui, server)
