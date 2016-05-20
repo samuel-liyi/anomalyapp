@@ -101,9 +101,11 @@ server <- function(input, output) {
     }
     output$illustration<-renderText({"Anomalies Found!"})
     rs=result$anom
+    if(dim(rs)[1]==0)
+      {output$illustration<-renderText({"No Anomalies Found!"})
+      return(NULL)}
     rs[,1]=as.character(rs[,1])
     value$anoms=rs
-    
     incProgress(0.2)
     if(!is.null(result$plot)){
       value$plot=result$plot
